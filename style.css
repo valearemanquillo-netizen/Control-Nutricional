@@ -1,0 +1,19 @@
+body {
+  font-family: Arial;
+  margin: 20px;
+}
+
+nav button {
+  margin: 5px;
+  padding: 8px;
+}
+
+.pantalla {
+  display: none;
+  margin-top: 20px;
+}
+
+input, select {
+  display: block;
+  margin: 5px 0;
+}
