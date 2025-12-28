@@ -119,6 +119,10 @@ function consultarResumen() {
 }
 
 function toggleRegistro(i) {
-  const el = document.getElementById(`detalle-${i}`);
-  el.style.display = el.style.display === "block" ? "none" : "block";
+  const detalle = document.getElementById(`detalle-${i}`);
+  if (!detalle) return;
+
+  detalle.style.display =
+    detalle.style.display === "block" ? "none" : "block";
 }
+
