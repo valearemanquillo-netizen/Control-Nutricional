@@ -188,3 +188,10 @@ canvas {
     transform: translateY(0);
   }
 }
+/* =========================
+   FIX SELECT DESPLEGABLE
+========================= */
+select option {
+  background: #111;
+  color: #eaeaea;
+}
