@@ -186,3 +186,22 @@ document.addEventListener("DOMContentLoaded", () => {
     mostrarGuia();
   }
 });
+
+function consultarResumen() {
+  const input = document.getElementById("ccBusqueda");
+
+  if (!input) {
+    alert("Error: no se encontró el campo de búsqueda");
+    return;
+  }
+
+  const cc = input.value.trim();
+
+  if (!cc) {
+    alert("Ingrese la cédula");
+    return;
+  }
+
+  // Continúa lógica...
+}
+
