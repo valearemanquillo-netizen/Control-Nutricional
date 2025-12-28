@@ -125,43 +125,57 @@ async function guardarRegistro() {
 // ================================
 // CONSULTAR RESUMEN (PÁGINA 3)
 // ================================
-async function consultarResumen() {
-  const cc = document.getElementById("ccBuscar").value.trim();
-  if (!cc) return;
+function consultarResumen() {
+  const cc = document.getElementById("ccBusqueda").value;
 
-  try {
-    const res = await fetch(
-      `${URL_APPS_SCRIPT}?hoja=REGISTROS`
-    );
-    const data = await res.json();
-
-    const filas = data
-      .slice(1)
-      .filter((row) => row[1] == cc);
-
-    let html = "<table><tr><th>Fecha</th><th>Cal</th><th>Prot</th><th>Carb</th><th>Grasa</th></tr>";
-
-    filas.forEach((r) => {
-      html += `
-        <tr>
-          <td>${new Date(r[0]).toLocaleDateString()}</td>
-          <td>${r[2]}</td>
-          <td>${r[3]}</td>
-          <td>${r[4]}</td>
-          <td>${r[5]}</td>
-        </tr>`;
-    });
-
-    html += "</table>";
-
-    document.getElementById("historial").innerHTML =
-      filas.length ? html : "No hay registros";
-
-  } catch (error) {
-    alert("Error consultando resumen");
-    console.error(error);
+  if (!cc) {
+    alert("Ingrese la cédula");
+    return;
   }
+
+  fetch(`${URL}?hoja=REGISTROS&cc=${cc}`)
+    .then(res => res.json())
+    .then(data => {
+      if (!Array.isArray(data) || data.length <= 1) {
+        document.getElementById("tablaResumen").innerHTML =
+          "<p>No hay registros</p>";
+        return;
+      }
+
+      let html = `
+        <table>
+          <tr>
+            <th>Fecha</th>
+            <th>Peso</th>
+            <th>Proteína</th>
+            <th>Carbos</th>
+            <th>Grasas</th>
+            <th>Calorías</th>
+          </tr>
+      `;
+
+      data.slice(1).forEach(row => {
+        html += `
+          <tr>
+            <td>${new Date(row[0]).toLocaleDateString()}</td>
+            <td>${row[2]}</td>
+            <td>${row[3]} g</td>
+            <td>${row[4]} g</td>
+            <td>${row[5]} g</td>
+            <td>${row[6]}</td>
+          </tr>
+        `;
+      });
+
+      html += "</table>";
+      document.getElementById("tablaResumen").innerHTML = html;
+    })
+    .catch(err => {
+      console.error(err);
+      alert("Error consultando datos");
+    });
 }
+
 
 
 // ================================
