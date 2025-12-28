@@ -9,3 +9,10 @@
 <section id="registro" class="pantalla"></section>
 <section id="resumen" class="pantalla"></section>
 <section id="historial" class="pantalla"></section>
+
+
+function mostrar(id) {
+  document.querySelectorAll('.pantalla')
+    .forEach(p => p.style.display = 'none');
+  document.getElementById(id).style.display = 'block';
+}
