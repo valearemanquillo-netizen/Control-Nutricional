@@ -4,92 +4,86 @@
   <meta charset="UTF-8">
   <title>Control Nutricional</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <!-- CSS -->
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-  <header>
-    <h1>🥗 Control Nutricional</h1>
-    <nav>
-      <button onclick="mostrar('perfil')">Perfil</button>
-      <button onclick="mostrar('registro')">Registro</button>
-      <button onclick="mostrar('resumen')">Resumen</button>
-    </nav>
-  </header>
+<header>
+  <h1>🥗 Control Nutricional</h1>
+  <nav>
+    <button onclick="mostrar('perfil')">Perfil</button>
+    <button onclick="mostrar('registro')">Registro</button>
+    <button onclick="mostrar('resumen')">Resumen</button>
+  </nav>
+</header>
 
-  <!-- ===================== -->
-  <!-- PERFIL -->
-  <!-- ===================== -->
-  <section id="perfil" class="pantalla">
-    <h2>Perfil del usuario</h2>
+<!-- PERFIL -->
+<section id="perfil" class="pantalla">
+  <h2>Perfil del usuario</h2>
 
-    <label>Peso (kg)</label>
-    <input type="number" id="peso">
+  <label>Cédula (CC)</label>
+  <input type="text" id="ccUsuario" placeholder="Número de cédula">
 
-    <label>Altura (cm)</label>
-    <input type="number" id="altura">
+  <label>Peso (kg)</label>
+  <input type="number" id="peso">
 
-    <label>Edad</label>
-    <input type="number" id="edad">
+  <label>Altura (cm)</label>
+  <input type="number" id="altura">
 
-    <label>Sexo</label>
-    <select id="sexo">
-      <option value="">Seleccionar</option>
-      <option value="H">Hombre</option>
-      <option value="M">Mujer</option>
-    </select>
+  <label>Edad</label>
+  <input type="number" id="edad">
 
-    <label>% Grasa corporal</label>
-    <input type="number" id="grasa">
+  <label>Sexo</label>
+  <select id="sexo">
+    <option value="">Seleccionar</option>
+    <option value="H">Hombre</option>
+    <option value="M">Mujer</option>
+  </select>
 
-    <label>Nivel de actividad</label>
-    <select id="actividad">
-      <option value="">Seleccionar</option>
-      <option value="1.2">Sedentario</option>
-      <option value="1.375">Ligero</option>
-      <option value="1.55">Moderado</option>
-      <option value="1.725">Alto</option>
-      <option value="1.9">Muy alto</option>
-    </select>
+  <label>% Grasa corporal</label>
+  <input type="number" id="grasa">
 
-    <button onclick="guardarPerfil()">Guardar perfil</button>
-  </section>
+  <label>Nivel de actividad</label>
+  <select id="actividad">
+    <option value="">Seleccionar</option>
+    <option value="1.2">Sedentario</option>
+    <option value="1.375">Ligero</option>
+    <option value="1.55">Moderado</option>
+    <option value="1.725">Alto</option>
+    <option value="1.9">Muy alto</option>
+  </select>
 
-  <!-- ===================== -->
-  <!-- REGISTRO DIARIO -->
-  <!-- ===================== -->
-  <section id="registro" class="pantalla">
-    <h2>Registro diario de alimentos</h2>
+  <button onclick="guardarPerfil()">Guardar perfil</button>
+</section>
 
-    <h3>Desayuno</h3>
-    <input type="number" id="pd" placeholder="Proteína (g)">
-    <input type="number" id="cd" placeholder="Carbos (g)">
-    <input type="number" id="gd" placeholder="Grasas (g)">
+<!-- REGISTRO -->
+<section id="registro" class="pantalla">
+  <h2>Registro diario</h2>
 
-    <h3>Almuerzo</h3>
-    <input type="number" id="pa" placeholder="Proteína (g)">
-    <input type="number" id="ca" placeholder="Carbos (g)">
-    <input type="number" id="ga" placeholder="Grasas (g)">
+  <h3>Desayuno</h3>
+  <input id="pd" placeholder="Proteína">
+  <input id="cd" placeholder="Carbos">
+  <input id="gd" placeholder="Grasas">
 
-    <h3>Cena</h3>
-    <input type="number" id="pc" placeholder="Proteína (g)">
-    <input type="number" id="cc" placeholder="Carbos (g)">
-    <input type="number" id="gc" placeholder="Grasas (g)">
+  <h3>Almuerzo</h3>
+  <input id="pa" placeholder="Proteína">
+  <input id="ca" placeholder="Carbos">
+  <input id="ga" placeholder="Grasas">
 
-    <button onclick="guardarRegistro()">Guardar registro del día</button>
-  </section>
+  <h3>Cena</h3>
+  <input id="pc" placeholder="Proteína">
+  <input id="cc" placeholder="Carbos">
+  <input id="gc" placeholder="Grasas">
 
-  <!-- ===================== -->
-  <!-- RESUMEN -->
-  <!-- ===================== -->
-  <section id="resumen" class="pantalla">
-    <h2>Resumen nutricional</h2>
-    <div id="resultado"></div>
-  </section>
+  <button onclick="guardarRegistro()">Guardar registro</button>
+</section>
 
-  <!-- JS -->
-  <script src="js/app.js"></script>
+<!-- RESUMEN -->
+<section id="resumen" class="pantalla">
+  <h2>Resumen</h2>
+  <div id="resultado"></div>
+</section>
+
+<script src="js/app.js"></script>
 </body>
 </html>
