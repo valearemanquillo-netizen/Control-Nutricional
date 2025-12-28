@@ -2,7 +2,7 @@
 // CONFIGURACIÓN
 // ================================
 const URL_APPS_SCRIPT =
-  "https://script.google.com/macros/s/AKfycbyOYw_nBtg7pG2EL30lUtcsDjpzGVgyfuAc1J4eIFAkhLKgp8xr_y70TgCuOmSKKzZpuA/exec";
+  "https://script.google.com/macros/s/AKfycbydTc_2_yrbc3pvkPQr1AFqRPDCFBfLaaS936xlEWTiBLfmxySkcZOrZQnF0piJpJoxvg/exec";
 
 
 // ================================
