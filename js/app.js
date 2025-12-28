@@ -1,4 +1,4 @@
-const URL = "PEGA_AQUI_TU_URL_DEL_APPS_SCRIPT";
+const URL = "https://script.google.com/macros/s/AKfycbyRJmpae74_163u5nDbIdW_IoJuoaoP0BSK0vCQib7TeMnIcH31A4Thmdu3BQRVzH6IEw/exec";
 
 function guardarPerfil() {
   const cc = cc.value;
