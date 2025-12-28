@@ -1,4 +1,4 @@
-const URL = "https://script.google.com/macros/s/AKfycbzr0dkezFCL1J2Yc0AdTMY74JCZxhL_C0f2fgeEEwMgO6I90z8L8ztJ6FhAmGI8Gy9L3g/exec";
+const URL = "https://script.google.com/macros/s/AKfycbzz1cEEN_lJlZ7opNcw_3yug9c7R9MZnxkRoZWa7fWYzJVXne3AelaELq5-HRooF0eDtA/exec";
 
 // =======================
 // NAVEGACIÓN
