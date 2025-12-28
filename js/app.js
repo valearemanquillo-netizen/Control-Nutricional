@@ -1,4 +1,4 @@
-const URL = "PEGA_AQUI_LA_URL_DEL_APPS_SCRIPT";
+const URL = "https://script.google.com/macros/s/AKfycbzEWiNtrkoOgteflcxaTyu62G2pJxlPEg3KsRYXf39Wx7EzUe0hbWAPeKDt6i543lPXqg/exec";
 
 function mostrar(id) {
   document.querySelectorAll('.pantalla')
