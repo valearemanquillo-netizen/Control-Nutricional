@@ -1,7 +1,7 @@
 /*************************
  * CONFIGURACIÓN
  *************************/
-const URL = "https://script.google.com/macros/s/AKfycbz5mfe3BU7V7timS0vY8fzdm1fVvMZQjAbwxhGEhBHJKn-51hjdTj66L6obc7AJv87ZCw/exec";
+const URL = "https://script.google.com/macros/s/AKfycbzq95bWyWNDTuULrHoTs65HN2wS97rtPXAwdCbsUQJ2hqkzxG_oI-VC7wp67c_tMb9UDw/exec";
 
 let macrosUsuario = {};
 let ccActual = "";
