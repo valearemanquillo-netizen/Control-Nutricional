@@ -162,6 +162,9 @@ td {
 tr:nth-child(even) td {
   background: rgba(255, 255, 255, 0.1);
 }
+.detalle {
+  display: none;   /* 👈 OCULTO INICIALMENTE */
+}
 
 /* ==========================
    MENSAJES
