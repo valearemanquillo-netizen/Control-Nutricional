@@ -1,21 +1,29 @@
-const URL = "https://script.google.com/macros/s/AKfycbzz1cEEN_lJlZ7opNcw_3yug9c7R9MZnxkRoZWa7fWYzJVXne3AelaELq5-HRooF0eDtA/exec";
+// ===============================
+// CONFIGURACIÓN
+// ===============================
+const URL = "https://script.google.com/macros/s/AKfycbzQL5IchDKHKqi9fUJaIDVcWXWbHAnmBG0fAAoZN5CxAg9DdNPs37upSO2qrBFjzNOsoQ/exec";
 
-// =======================
-// NAVEGACIÓN
-// =======================
+// ===============================
+// NAVEGACIÓN ENTRE PANTALLAS
+// ===============================
 function mostrar(id) {
-  document.querySelectorAll('.pantalla')
-    .forEach(p => p.style.display = 'none');
-  document.getElementById(id).style.display = 'block';
+  document.querySelectorAll(".pantalla").forEach(p => {
+    p.style.display = "none";
+  });
+  document.getElementById(id).style.display = "block";
 }
 
-mostrar('perfil');
+// ===============================
+// INICIO
+// ===============================
+mostrar("perfil");
 cargarPerfil();
 
-// =======================
-// PERFIL
-// =======================
+// ===============================
+// GUARDAR PERFIL (GET - SIN CORS)
+// ===============================
 function guardarPerfil() {
+
   const data = {
     tipo: "perfil",
     usuario: "usuario_unico",
@@ -27,28 +35,28 @@ function guardarPerfil() {
     actividad: actividad.value
   };
 
+  // Guardar localmente
   localStorage.setItem("perfilUsuario", JSON.stringify(data));
 
-  fetch(URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data)
-  })
-  .then(() => {
-    generarGuiaNutricional(data);
-    mostrar('registro');
-  })
-  .catch(err => console.error("Error al guardar perfil", err));
+  // Enviar a Sheets
+  const params = new URLSearchParams(data).toString();
+
+  fetch(`${URL}?${params}`)
+    .then(() => {
+      generarGuiaNutricional(data);
+      mostrar("registro");
+    })
+    .catch(err => console.error("Error al guardar perfil:", err));
 }
 
-// =======================
-// CARGAR PERFIL
-// =======================
+// ===============================
+// CARGAR PERFIL SI EXISTE
+// ===============================
 function cargarPerfil() {
-  const perfil = localStorage.getItem("perfilUsuario");
-  if (!perfil) return;
+  const perfilGuardado = localStorage.getItem("perfilUsuario");
+  if (!perfilGuardado) return;
 
-  const data = JSON.parse(perfil);
+  const data = JSON.parse(perfilGuardado);
 
   peso.value = data.peso;
   altura.value = data.altura;
@@ -58,42 +66,48 @@ function cargarPerfil() {
   actividad.value = data.actividad;
 
   generarGuiaNutricional(data);
-  mostrar('registro');
+  mostrar("registro");
 }
 
-// =======================
-// GUÍA NUTRICIONAL
-// =======================
+// ===============================
+// GUÍA NUTRICIONAL AUTOMÁTICA
+// ===============================
 function generarGuiaNutricional(p) {
-  const peso = +p.peso;
-  const altura = +p.altura;
-  const edad = +p.edad;
 
-  let tmb = p.sexo === "H"
-    ? (10 * peso + 6.25 * altura - 5 * edad + 5)
-    : (10 * peso + 6.25 * altura - 5 * edad - 161);
+  const pesoNum = Number(p.peso);
+  const alturaNum = Number(p.altura);
+  const edadNum = Number(p.edad);
+  const actividadNum = Number(p.actividad);
 
-  const calorias = tmb * +p.actividad;
-  const proteina = peso * 2;
-  const grasas = peso * 0.8;
+  let tmb;
+  if (p.sexo === "H") {
+    tmb = 10 * pesoNum + 6.25 * alturaNum - 5 * edadNum + 5;
+  } else {
+    tmb = 10 * pesoNum + 6.25 * alturaNum - 5 * edadNum - 161;
+  }
+
+  const calorias = tmb * actividadNum;
+  const proteina = pesoNum * 2;
+  const grasas = pesoNum * 0.8;
   const carbos = (calorias - (proteina * 4 + grasas * 9)) / 4;
 
   resultado.innerHTML = `
-    <h3>Guía diaria</h3>
-    <p>Calorías: ${calorias.toFixed(0)}</p>
-    <p>Proteína: ${proteina.toFixed(0)} g</p>
-    <p>Carbohidratos: ${carbos.toFixed(0)} g</p>
-    <p>Grasas: ${grasas.toFixed(0)} g</p>
+    <h3>Guía diaria recomendada</h3>
+    <p>Calorías: <strong>${calorias.toFixed(0)}</strong></p>
+    <p>Proteína: <strong>${proteina.toFixed(0)} g</strong></p>
+    <p>Carbohidratos: <strong>${carbos.toFixed(0)} g</strong></p>
+    <p>Grasas: <strong>${grasas.toFixed(0)} g</strong></p>
   `;
 }
 
-// =======================
-// REGISTRO DIARIO
-// =======================
+// ===============================
+// GUARDAR REGISTRO DIARIO
+// ===============================
 function guardarRegistro() {
-  const proteina = (+pd.value + +pa.value + +pc.value);
-  const carbos = (+cd.value + +ca.value + +cc.value);
-  const grasas = (+gd.value + +ga.value + +gc.value);
+
+  const proteina = (+pd.value || 0) + (+pa.value || 0) + (+pc.value || 0);
+  const carbos   = (+cd.value || 0) + (+ca.value || 0) + (+cc.value || 0);
+  const grasas   = (+gd.value || 0) + (+ga.value || 0) + (+gc.value || 0);
   const calorias = proteina * 4 + carbos * 4 + grasas * 9;
 
   const perfil = JSON.parse(localStorage.getItem("perfilUsuario"));
@@ -108,29 +122,27 @@ function guardarRegistro() {
     calorias
   };
 
-  fetch(URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data)
-  })
-  .then(() => {
-    resultado.innerHTML += `
-      <hr>
-      <p><strong>Consumido hoy</strong></p>
-      <p>Proteína: ${proteina} g</p>
-      <p>Carbos: ${carbos} g</p>
-      <p>Grasas: ${grasas} g</p>
-      <p>Calorías: ${calorias}</p>
-    `;
-    limpiarInputs();
-    mostrar('resumen');
-  })
-  .catch(err => console.error("Error registro", err));
+  const params = new URLSearchParams(data).toString();
+
+  fetch(`${URL}?${params}`)
+    .then(() => {
+      resultado.innerHTML += `
+        <hr>
+        <h4>Consumo del día</h4>
+        <p>Proteína: ${proteina} g</p>
+        <p>Carbohidratos: ${carbos} g</p>
+        <p>Grasas: ${grasas} g</p>
+        <p>Calorías: ${calorias}</p>
+      `;
+      limpiarInputs();
+      mostrar("resumen");
+    })
+    .catch(err => console.error("Error al guardar registro:", err));
 }
 
-// =======================
-// LIMPIAR INPUTS
-// =======================
+// ===============================
+// LIMPIAR INPUTS DE COMIDAS
+// ===============================
 function limpiarInputs() {
   pd.value = cd.value = gd.value = "";
   pa.value = ca.value = ga.value = "";
