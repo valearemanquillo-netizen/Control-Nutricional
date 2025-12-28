@@ -1,156 +1,174 @@
-/*************************
- * CONFIGURACIÓN
- *************************/
-const URL = "https://script.google.com/macros/s/AKfycbzq95bWyWNDTuULrHoTs65HN2wS97rtPXAwdCbsUQJ2hqkzxG_oI-VC7wp67c_tMb9UDw/exec";
+// ================================
+// CONFIGURACIÓN
+// ================================
+const URL_APPS_SCRIPT =
+  "https://script.google.com/macros/s/AKfycbyOYw_nBtg7pG2EL30lUtcsDjpzGVgyfuAc1J4eIFAkhLKgp8xr_y70TgCuOmSKKzZpuA/exec";
 
-let macrosUsuario = {};
-let ccActual = "";
 
-/*************************
- * NAVEGACIÓN
- *************************/
-function mostrar(id) {
-  document.querySelectorAll(".pantalla").forEach(p => {
-    p.style.display = "none";
-  });
-  document.getElementById(id).style.display = "block";
-}
-
-mostrar("perfil");
-
-/*************************
- * GUARDAR PERFIL
- *************************/
-function guardarPerfil() {
-  // 1️⃣ LEER INPUTS
-  const cc = document.getElementById("cc").value;
-  const peso = +document.getElementById("peso").value;
-  const altura = +document.getElementById("altura").value;
-  const edad = +document.getElementById("edad").value;
+// ================================
+// GUARDAR PERFIL (PÁGINA 1)
+// ================================
+async function guardarPerfil() {
+  const cc = document.getElementById("cc").value.trim();
+  const peso = Number(document.getElementById("peso").value);
+  const altura = Number(document.getElementById("altura").value);
+  const edad = Number(document.getElementById("edad").value);
   const sexo = document.getElementById("sexo").value;
-  const actividad = +document.getElementById("actividad").value;
+  const actividad = Number(document.getElementById("actividad").value);
 
-  if (!cc || !peso || !altura || !edad) {
-    alert("Completa todos los campos");
+  if (!cc || !peso || !altura || !edad || !sexo || !actividad) {
+    alert("Complete todos los campos");
     return;
   }
 
-  ccActual = cc;
-
-  // 2️⃣ CÁLCULOS NUTRICIONALES (BASE MÉDICA)
-  let tmb = sexo === "H"
-    ? 88.36 + (13.4 * peso) + (4.8 * altura) - (5.7 * edad)
-    : 447.6 + (9.2 * peso) + (3.1 * altura) - (4.3 * edad);
+  // ===== CÁLCULOS =====
+  let tmb =
+    sexo === "H"
+      ? 10 * peso + 6.25 * altura - 5 * edad + 5
+      : 10 * peso + 6.25 * altura - 5 * edad - 161;
 
   const calorias = Math.round(tmb * actividad);
-  const proteina = Math.round(peso * 2);
+  const proteina = Math.round((calorias * 0.23) / 4);
+  const carbos = Math.round((calorias * 0.52) / 4);
   const grasas = Math.round((calorias * 0.25) / 9);
-  const carbos = Math.round((calorias - (proteina * 4) - (grasas * 9)) / 4);
 
-  macrosUsuario = { calorias, proteina, carbos, grasas };
+  // ===== GUARDAR LOCAL =====
+  localStorage.setItem("cc", cc);
+  localStorage.setItem(
+    "macros",
+    JSON.stringify({ calorias, proteina, carbos, grasas })
+  );
 
-  // 3️⃣ ENVIAR A APPS SCRIPT
-  const data = {
+  // ===== ENVIAR A GOOGLE SHEETS =====
+  const payload = {
     tipo: "usuario",
     cc,
     peso,
     altura,
     edad,
     sexo,
-    actividad
+    actividad,
+    calorias,
+    proteina,
+    carbos,
+    grasas
   };
 
-  fetch(URL, {
-    method: "POST",
-    mode: "no-cors",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data)
-  });
+  try {
+    await fetch(URL_APPS_SCRIPT, {
+      method: "POST",
+      body: JSON.stringify(payload)
+    });
 
-  // 4️⃣ PASAR A SEGUNDA PANTALLA
-  mostrar("registro");
-  mostrarGuia();
+    window.location.href = "guia.html";
+  } catch (error) {
+    alert("Error guardando datos");
+    console.error(error);
+  }
 }
 
-/*************************
- * MOSTRAR GUÍA NUTRICIONAL
- *************************/
-function mostrarGuia() {
-  document.getElementById("guia").innerHTML = `
-    <h3>Guía diaria recomendada</h3>
-    <p><strong>Calorías:</strong> ${macrosUsuario.calorias} kcal</p>
 
-    <h4>Distribución por comida</h4>
+// ================================
+// MOSTRAR GUÍA (PÁGINA 2)
+// ================================
+function mostrarGuia() {
+  const data = JSON.parse(localStorage.getItem("macros"));
+  if (!data) return;
+
+  const porcion = (valor) => Math.round(valor / 3);
+
+  document.getElementById("guia").innerHTML = `
+    <p><b>Calorías:</b> ${data.calorias} kcal</p>
+
+    <h3>Por comida (3 al día)</h3>
     <ul>
-      <li>🥣 Desayuno:
-        ${Math.round(macrosUsuario.proteina * 0.3)}g proteína,
-        ${Math.round(macrosUsuario.carbos * 0.3)}g carbos,
-        ${Math.round(macrosUsuario.grasas * 0.3)}g grasas
-      </li>
-      <li>🍛 Almuerzo:
-        ${Math.round(macrosUsuario.proteina * 0.4)}g proteína,
-        ${Math.round(macrosUsuario.carbos * 0.4)}g carbos,
-        ${Math.round(macrosUsuario.grasas * 0.4)}g grasas
-      </li>
-      <li>🍽 Cena:
-        ${Math.round(macrosUsuario.proteina * 0.3)}g proteína,
-        ${Math.round(macrosUsuario.carbos * 0.3)}g carbos,
-        ${Math.round(macrosUsuario.grasas * 0.3)}g grasas
-      </li>
+      <li>Proteína: ${porcion(data.proteina)} g</li>
+      <li>Carbohidratos: ${porcion(data.carbos)} g</li>
+      <li>Grasas: ${porcion(data.grasas)} g</li>
     </ul>
   `;
 }
 
-/*************************
- * GUARDAR REGISTRO DIARIO
- *************************/
-function guardarRegistro() {
-  const data = {
+
+// ================================
+// GUARDAR REGISTRO DIARIO
+// ================================
+async function guardarRegistro() {
+  const cc = localStorage.getItem("cc");
+  const data = JSON.parse(localStorage.getItem("macros"));
+
+  if (!cc || !data) return;
+
+  const payload = {
     tipo: "registro",
-    cc: ccActual,
-    calorias: macrosUsuario.calorias,
-    proteina: macrosUsuario.proteina,
-    carbos: macrosUsuario.carbos,
-    grasas: macrosUsuario.grasas
+    cc,
+    calorias: data.calorias,
+    proteina: data.proteina,
+    carbos: data.carbos,
+    grasas: data.grasas
   };
 
-  fetch(URL, {
-    method: "POST",
-    mode: "no-cors",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data)
-  });
-
-  alert("Registro guardado");
-  mostrar("resumen");
-}
-
-/*************************
- * CONSULTAR HISTORIAL
- *************************/
-function consultarResumen() {
-  const cc = document.getElementById("ccBuscar").value;
-
-  if (!cc) {
-    alert("Ingresa una CC");
-    return;
-  }
-
-  fetch(`${URL}?cc=${cc}`)
-    .then(res => res.json())
-    .then(data => {
-      let html = "<h3>Histórico</h3><ul>";
-      data.forEach(r => {
-        html += `
-          <li>
-            📅 ${new Date(r[0]).toLocaleDateString()} -
-            🔥 ${r[2]} kcal |
-            🥩 ${r[3]}g |
-            🍚 ${r[4]}g |
-            🧈 ${r[5]}g
-          </li>`;
-      });
-      html += "</ul>";
-      document.getElementById("historial").innerHTML = html;
+  try {
+    await fetch(URL_APPS_SCRIPT, {
+      method: "POST",
+      body: JSON.stringify(payload)
     });
+
+    window.location.href = "resumen.html";
+  } catch (error) {
+    alert("Error guardando registro");
+    console.error(error);
+  }
 }
+
+
+// ================================
+// CONSULTAR RESUMEN (PÁGINA 3)
+// ================================
+async function consultarResumen() {
+  const cc = document.getElementById("ccBuscar").value.trim();
+  if (!cc) return;
+
+  try {
+    const res = await fetch(
+      `${URL_APPS_SCRIPT}?hoja=REGISTROS`
+    );
+    const data = await res.json();
+
+    const filas = data
+      .slice(1)
+      .filter((row) => row[1] == cc);
+
+    let html = "<table><tr><th>Fecha</th><th>Cal</th><th>Prot</th><th>Carb</th><th>Grasa</th></tr>";
+
+    filas.forEach((r) => {
+      html += `
+        <tr>
+          <td>${new Date(r[0]).toLocaleDateString()}</td>
+          <td>${r[2]}</td>
+          <td>${r[3]}</td>
+          <td>${r[4]}</td>
+          <td>${r[5]}</td>
+        </tr>`;
+    });
+
+    html += "</table>";
+
+    document.getElementById("historial").innerHTML =
+      filas.length ? html : "No hay registros";
+
+  } catch (error) {
+    alert("Error consultando resumen");
+    console.error(error);
+  }
+}
+
+
+// ================================
+// AUTO-EJECUCIÓN SEGÚN PÁGINA
+// ================================
+document.addEventListener("DOMContentLoaded", () => {
+  if (document.getElementById("guia")) {
+    mostrarGuia();
+  }
+});
