@@ -1,4 +1,12 @@
-const URL = "https://script.google.com/macros/s/AKfycbzq95bWyWNDTuULrHoTs65HN2wS97rtPXAwdCbsUQJ2hqkzxG_oI-VC7wp67c_tMb9UDw/exec";
+const URL = "https://script.google.com/macros/s/AKfycby5hPaccoFl8vR7QL-olZKrjYeKV2H9rYqImfvLLEd84LTZi6_snkT5c2cnMLF8TwWxrQ/exec";
+function escapeHTML(text) {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
 
 let macros = {};
 
@@ -47,11 +55,22 @@ function mostrarGuia() {
 }
 
 function buscarResumen() {
-  fetch(`${URL}?accion=buscarRegistros&cc=${ccBuscar.value}`)
+  fetch(`${URL}?accion=buscarRegistros&cc=${encodeURIComponent(ccBuscar.value)}`)
     .then(r => r.json())
     .then(data => {
-      resumenResultado.innerHTML = data.length
-        ? data.map(d => `<p>${d.fecha} → ${d.peso} kg</p>`).join("")
-        : "<p>No hay registros</p>";
+
+      if (!Array.isArray(data) || data.length === 0) {
+        resumenResultado.innerHTML = "<p>No hay registros</p>";
+        return;
+      }
+
+      resumenResultado.innerHTML = data.map(d => `
+        <p>
+          ${escapeHTML(String(d.fecha))} →
+          ${escapeHTML(String(d.peso))} kg
+        </p>
+      `).join("");
     });
+}
+
 }
