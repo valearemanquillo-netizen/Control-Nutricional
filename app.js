@@ -1,44 +1,156 @@
-const URL = "https://script.google.com/macros/s/AKfycbyRJmpae74_163u5nDbIdW_IoJuoaoP0BSK0vCQib7TeMnIcH31A4Thmdu3BQRVzH6IEw/exec";
+/*************************
+ * CONFIGURACIÓN
+ *************************/
+const URL = "https://script.google.com/macros/s/AKfycbz5mfe3BU7V7timS0vY8fzdm1fVvMZQjAbwxhGEhBHJKn-51hjdTj66L6obc7AJv87ZCw/exec";
 
+let macrosUsuario = {};
+let ccActual = "";
+
+/*************************
+ * NAVEGACIÓN
+ *************************/
+function mostrar(id) {
+  document.querySelectorAll(".pantalla").forEach(p => {
+    p.style.display = "none";
+  });
+  document.getElementById(id).style.display = "block";
+}
+
+mostrar("perfil");
+
+/*************************
+ * GUARDAR PERFIL
+ *************************/
 function guardarPerfil() {
-  const cc = cc.value;
-  const peso = +peso.value;
-  const altura = +altura.value;
-  const edad = +edad.value;
+  // 1️⃣ LEER INPUTS
+  const cc = document.getElementById("cc").value;
+  const peso = +document.getElementById("peso").value;
+  const altura = +document.getElementById("altura").value;
+  const edad = +document.getElementById("edad").value;
   const sexo = document.getElementById("sexo").value;
   const actividad = +document.getElementById("actividad").value;
 
-  const tmb = sexo === "H"
+  if (!cc || !peso || !altura || !edad) {
+    alert("Completa todos los campos");
+    return;
+  }
+
+  ccActual = cc;
+
+  // 2️⃣ CÁLCULOS NUTRICIONALES (BASE MÉDICA)
+  let tmb = sexo === "H"
     ? 88.36 + (13.4 * peso) + (4.8 * altura) - (5.7 * edad)
     : 447.6 + (9.2 * peso) + (3.1 * altura) - (4.3 * edad);
 
   const calorias = Math.round(tmb * actividad);
   const proteina = Math.round(peso * 2);
   const grasas = Math.round((calorias * 0.25) / 9);
-  const carbos = Math.round((calorias - (proteina*4 + grasas*9)) / 4);
+  const carbos = Math.round((calorias - (proteina * 4) - (grasas * 9)) / 4);
+
+  macrosUsuario = { calorias, proteina, carbos, grasas };
+
+  // 3️⃣ ENVIAR A APPS SCRIPT
+  const data = {
+    tipo: "usuario",
+    cc,
+    peso,
+    altura,
+    edad,
+    sexo,
+    actividad
+  };
 
   fetch(URL, {
     method: "POST",
-    body: JSON.stringify({
-      tipo: "usuario",
-      cc, peso, altura, edad, sexo,
-      grasa: grasas,
-      actividad
-    }),
+    mode: "no-cors",
     headers: { "Content-Type": "application/json" },
-    mode: "no-cors"
+    body: JSON.stringify(data)
   });
+
+  // 4️⃣ PASAR A SEGUNDA PANTALLA
+  mostrar("registro");
+  mostrarGuia();
+}
+
+/*************************
+ * MOSTRAR GUÍA NUTRICIONAL
+ *************************/
+function mostrarGuia() {
+  document.getElementById("guia").innerHTML = `
+    <h3>Guía diaria recomendada</h3>
+    <p><strong>Calorías:</strong> ${macrosUsuario.calorias} kcal</p>
+
+    <h4>Distribución por comida</h4>
+    <ul>
+      <li>🥣 Desayuno:
+        ${Math.round(macrosUsuario.proteina * 0.3)}g proteína,
+        ${Math.round(macrosUsuario.carbos * 0.3)}g carbos,
+        ${Math.round(macrosUsuario.grasas * 0.3)}g grasas
+      </li>
+      <li>🍛 Almuerzo:
+        ${Math.round(macrosUsuario.proteina * 0.4)}g proteína,
+        ${Math.round(macrosUsuario.carbos * 0.4)}g carbos,
+        ${Math.round(macrosUsuario.grasas * 0.4)}g grasas
+      </li>
+      <li>🍽 Cena:
+        ${Math.round(macrosUsuario.proteina * 0.3)}g proteína,
+        ${Math.round(macrosUsuario.carbos * 0.3)}g carbos,
+        ${Math.round(macrosUsuario.grasas * 0.3)}g grasas
+      </li>
+    </ul>
+  `;
+}
+
+/*************************
+ * GUARDAR REGISTRO DIARIO
+ *************************/
+function guardarRegistro() {
+  const data = {
+    tipo: "registro",
+    cc: ccActual,
+    calorias: macrosUsuario.calorias,
+    proteina: macrosUsuario.proteina,
+    carbos: macrosUsuario.carbos,
+    grasas: macrosUsuario.grasas
+  };
 
   fetch(URL, {
     method: "POST",
-    body: JSON.stringify({
-      tipo: "registro",
-      cc, peso, proteina, carbos, grasas, calorias
-    }),
+    mode: "no-cors",
     headers: { "Content-Type": "application/json" },
-    mode: "no-cors"
+    body: JSON.stringify(data)
   });
 
-  localStorage.setItem("macros", JSON.stringify({ calorias, proteina, carbos, grasas }));
-  window.location.href = "guia.html";
+  alert("Registro guardado");
+  mostrar("resumen");
+}
+
+/*************************
+ * CONSULTAR HISTORIAL
+ *************************/
+function consultarResumen() {
+  const cc = document.getElementById("ccBuscar").value;
+
+  if (!cc) {
+    alert("Ingresa una CC");
+    return;
+  }
+
+  fetch(`${URL}?cc=${cc}`)
+    .then(res => res.json())
+    .then(data => {
+      let html = "<h3>Histórico</h3><ul>";
+      data.forEach(r => {
+        html += `
+          <li>
+            📅 ${new Date(r[0]).toLocaleDateString()} -
+            🔥 ${r[2]} kcal |
+            🥩 ${r[3]}g |
+            🍚 ${r[4]}g |
+            🧈 ${r[5]}g
+          </li>`;
+      });
+      html += "</ul>";
+      document.getElementById("historial").innerHTML = html;
+    });
 }
