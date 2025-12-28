@@ -1,114 +1,57 @@
-const URL = "https://script.google.com/macros/s/AKfycbxN1J4AS2MY8SQGr2F8KLwJMoOtV7SGM2uFfLSdGiISq95UjpdMMjfG4XcJ_KUnnhrAfg/exec";
+const URL = "https://script.google.com/macros/s/AKfycbzq95bWyWNDTuULrHoTs65HN2wS97rtPXAwdCbsUQJ2hqkzxG_oI-VC7wp67c_tMb9UDw/exec";
 
-// =====================
-// NAVEGACIÓN
-// =====================
+let macros = {};
+
 function mostrar(id) {
   document.querySelectorAll(".pantalla").forEach(p => p.style.display = "none");
   document.getElementById(id).style.display = "block";
 }
-
 mostrar("perfil");
-cargarPerfil();
 
-// =====================
-// GUARDAR PERFIL
-// =====================
 function guardarPerfil() {
+  const cc = ccInput.value;
+  const pesoVal = +peso.value;
+  const alturaVal = +altura.value;
+  const edadVal = +edad.value;
+  const sexoVal = sexo.value;
+  const actividadVal = +actividad.value;
 
-  const data = {
-    tipo: "perfil",
-    cc: ccUsuario.value,
-    peso: peso.value,
-    altura: altura.value,
-    edad: edad.value,
-    sexo: sexo.value,
-    grasa: grasa.value,
-    actividad: actividad.value
-  };
+  let tmb = sexoVal === "H"
+    ? 88.36 + 13.4 * pesoVal + 4.8 * alturaVal - 5.7 * edadVal
+    : 447.6 + 9.2 * pesoVal + 3.1 * alturaVal - 4.3 * edadVal;
 
-  localStorage.setItem("perfil_" + data.cc, JSON.stringify(data));
+  const calorias = Math.round(tmb * actividadVal);
+  const proteina = Math.round(pesoVal * 2);
+  const grasas = Math.round((calorias * 0.25) / 9);
+  const carbos = Math.round((calorias - proteina * 4 - grasas * 9) / 4);
 
-  const params = new URLSearchParams(data).toString();
+  macros = { proteina, carbos, grasas };
 
-  fetch(`${URL}?${params}`)
+  fetch(`${URL}?accion=guardarUsuario&cc=${cc}&peso=${pesoVal}&altura=${alturaVal}&edad=${edadVal}&sexo=${sexoVal}&actividad=${actividadVal}&calorias=${calorias}&proteina=${proteina}&carbos=${carbos}&grasas=${grasas}`)
     .then(() => {
-      generarGuia(data);
       mostrar("registro");
+      mostrarGuia();
     });
 }
 
-// =====================
-// CARGAR PERFIL
-// =====================
-function cargarPerfil() {
-  const cc = localStorage.getItem("ccActual");
-  if (!cc) return;
-
-  const data = JSON.parse(localStorage.getItem("perfil_" + cc));
-  if (!data) return;
-
-  ccUsuario.value = data.cc;
-  peso.value = data.peso;
-  altura.value = data.altura;
-  edad.value = data.edad;
-  sexo.value = data.sexo;
-  grasa.value = data.grasa;
-  actividad.value = data.actividad;
-
-  generarGuia(data);
-  mostrar("registro");
-}
-
-// =====================
-// GUÍA NUTRICIONAL
-// =====================
-function generarGuia(p) {
-  const tmb = p.sexo === "H"
-    ? 10*p.peso + 6.25*p.altura - 5*p.edad + 5
-    : 10*p.peso + 6.25*p.altura - 5*p.edad - 161;
-
-  const calorias = tmb * p.actividad;
-  const proteina = p.peso * 2;
-  const grasas = p.peso * 0.8;
-  const carbos = (calorias - (proteina*4 + grasas*9)) / 4;
+function mostrarGuia() {
+  const p = Math.round(macros.proteina / 3);
+  const c = Math.round(macros.carbos / 3);
+  const g = Math.round(macros.grasas / 3);
 
   resultado.innerHTML = `
-    <h3>Guía diaria</h3>
-    <p>Calorías: ${calorias.toFixed(0)}</p>
-    <p>Proteína: ${proteina.toFixed(0)} g</p>
-    <p>Carbos: ${carbos.toFixed(0)} g</p>
-    <p>Grasas: ${grasas.toFixed(0)} g</p>
+    <p><b>Desayuno:</b> ${p}g proteína | ${c}g carbos | ${g}g grasas</p>
+    <p><b>Almuerzo:</b> ${p}g proteína | ${c}g carbos | ${g}g grasas</p>
+    <p><b>Cena:</b> ${p}g proteína | ${c}g carbos | ${g}g grasas</p>
   `;
 }
 
-// =====================
-// GUARDAR REGISTRO
-// =====================
-function guardarRegistro() {
-
-  const perfil = JSON.parse(localStorage.getItem("perfil_" + ccUsuario.value));
-  localStorage.setItem("ccActual", ccUsuario.value);
-
-  const proteina = (+pd.value + +pa.value + +pc.value);
-  const carbos = (+cd.value + +ca.value + +cc.value);
-  const grasas = (+gd.value + +ga.value + +gc.value);
-  const calorias = proteina*4 + carbos*4 + grasas*9;
-
-  const data = {
-    tipo: "registro",
-    cc: perfil.cc,
-    peso: perfil.peso,
-    proteina,
-    carbos,
-    grasas,
-    calorias
-  };
-
-  const params = new URLSearchParams(data).toString();
-
-  fetch(`${URL}?${params}`)
-    .then(() => {
-      mostrar("resumen");
+function buscarResumen() {
+  fetch(`${URL}?accion=buscarRegistros&cc=${ccBuscar.value}`)
+    .then(r => r.json())
+    .then(data => {
+      resumenResultado.innerHTML = data.length
+        ? data.map(d => `<p>${d.fecha} → ${d.peso} kg</p>`).join("")
+        : "<p>No hay registros</p>";
     });
 }
