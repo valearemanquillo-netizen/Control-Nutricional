@@ -56,3 +56,7 @@ function guardarRegistro() {
 
   mostrar('resumen');
 }
+// Limpiar inputs después de guardar
+pd.value = cd.value = gd.value = "";
+pa.value = ca.value = ga.value = "";
+pc.value = cc.value = gc.value = "";
