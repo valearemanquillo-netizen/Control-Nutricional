@@ -1,7 +1,7 @@
 // ===============================
 // CONFIGURACIÓN
 // ===============================
-const URL = "https://script.google.com/macros/s/AKfycbzQL5IchDKHKqi9fUJaIDVcWXWbHAnmBG0fAAoZN5CxAg9DdNPs37upSO2qrBFjzNOsoQ/exec";
+const URL = "https://script.google.com/macros/s/AKfycbwM-TM4n__28ssBzpkgaVpNn8onE5lsKjdj25lFpnhImqpBQGa_iXNRZPAEbhpzdZKvXg/exec";
 
 // ===============================
 // NAVEGACIÓN ENTRE PANTALLAS
