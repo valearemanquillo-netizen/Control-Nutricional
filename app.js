@@ -1,46 +1,32 @@
-// ================================
-// CONFIGURACIÓN
-// ================================
-const URL_APPS_SCRIPT =
-  "https://script.google.com/macros/s/AKfycbydTc_2_yrbc3pvkPQr1AFqRPDCFBfLaaS936xlEWTiBLfmxySkcZOrZQnF0piJpJoxvg/exec";
+const URL = "https://script.google.com/macros/s/AKfycbw-lMyQV3bCJcma7gso0QAojZFK_AVdfrvNR75BQrmCTNaGGhToiv5HuEIKds9GKottfg/exec";
 
-
-// ================================
-// GUARDAR PERFIL (PÁGINA 1)
-// ================================
-async function guardarPerfil() {
+/* ==========================
+   PERFIL
+========================== */
+function guardarPerfil() {
   const cc = document.getElementById("cc").value.trim();
-  const peso = Number(document.getElementById("peso").value);
-  const altura = Number(document.getElementById("altura").value);
-  const edad = Number(document.getElementById("edad").value);
+  const peso = +document.getElementById("peso").value;
+  const altura = +document.getElementById("altura").value;
+  const edad = +document.getElementById("edad").value;
   const sexo = document.getElementById("sexo").value;
-  const actividad = Number(document.getElementById("actividad").value);
+  const actividad = +document.getElementById("actividad").value;
 
   if (!cc || !peso || !altura || !edad || !sexo || !actividad) {
     alert("Complete todos los campos");
     return;
   }
 
-  // ===== CÁLCULOS =====
-  let tmb =
-    sexo === "H"
-      ? 10 * peso + 6.25 * altura - 5 * edad + 5
-      : 10 * peso + 6.25 * altura - 5 * edad - 161;
+  // Cálculo TMB (Mifflin)
+  const tmb = sexo === "H"
+    ? 10 * peso + 6.25 * altura - 5 * edad + 5
+    : 10 * peso + 6.25 * altura - 5 * edad - 161;
 
   const calorias = Math.round(tmb * actividad);
-  const proteina = Math.round((calorias * 0.23) / 4);
-  const carbos = Math.round((calorias * 0.52) / 4);
-  const grasas = Math.round((calorias * 0.25) / 9);
+  const proteina = Math.round(peso * 2);
+  const grasas = Math.round(calorias * 0.25 / 9);
+  const carbos = Math.round((calorias - (proteina * 4 + grasas * 9)) / 4);
 
-  // ===== GUARDAR LOCAL =====
-  localStorage.setItem("cc", cc);
-  localStorage.setItem(
-    "macros",
-    JSON.stringify({ calorias, proteina, carbos, grasas })
-  );
-
-  // ===== ENVIAR A GOOGLE SHEETS =====
-  const payload = {
+  const data = {
     tipo: "usuario",
     cc,
     peso,
@@ -54,80 +40,47 @@ async function guardarPerfil() {
     grasas
   };
 
-  try {
-    await fetch(URL_APPS_SCRIPT, {
-      method: "POST",
-      body: JSON.stringify(payload)
+  fetch(URL, {
+    method: "POST",
+    body: JSON.stringify(data)
+  })
+    .then(() => {
+      localStorage.setItem("guia", JSON.stringify(data));
+      window.location.href = "guia.html";
     });
-
-    window.location.href = "guia.html";
-  } catch (error) {
-    alert("Error guardando datos");
-    console.error(error);
-  }
 }
 
-
-// ================================
-// MOSTRAR GUÍA (PÁGINA 2)
-// ================================
-function mostrarGuia() {
-  const data = JSON.parse(localStorage.getItem("macros"));
+/* ==========================
+   GUIA
+========================== */
+function cargarGuia() {
+  const data = JSON.parse(localStorage.getItem("guia"));
   if (!data) return;
 
-  const porcion = (valor) => Math.round(valor / 3);
-
   document.getElementById("guia").innerHTML = `
-    <p><b>Calorías:</b> ${data.calorias} kcal</p>
-
-    <h3>Por comida (3 al día)</h3>
     <ul>
-      <li>Proteína: ${porcion(data.proteina)} g</li>
-      <li>Carbohidratos: ${porcion(data.carbos)} g</li>
-      <li>Grasas: ${porcion(data.grasas)} g</li>
+      <li>Proteína diaria: <b>${data.proteina} g</b></li>
+      <li>Carbohidratos: <b>${data.carbos} g</b></li>
+      <li>Grasas: <b>${data.grasas} g</b></li>
+      <li>Calorías: <b>${data.calorias}</b></li>
     </ul>
   `;
 }
 
+if (document.getElementById("guia")) cargarGuia();
 
-// ================================
-// GUARDAR REGISTRO DIARIO
-// ================================
-async function guardarRegistro() {
-  const cc = localStorage.getItem("cc");
-  const data = JSON.parse(localStorage.getItem("macros"));
-
-  if (!cc || !data) return;
-
-  const payload = {
-    tipo: "registro",
-    cc,
-    calorias: data.calorias,
-    proteina: data.proteina,
-    carbos: data.carbos,
-    grasas: data.grasas
-  };
-
-  try {
-    await fetch(URL_APPS_SCRIPT, {
-      method: "POST",
-      body: JSON.stringify(payload)
-    });
-
-    window.location.href = "resumen.html";
-  } catch (error) {
-    alert("Error guardando registro");
-    console.error(error);
-  }
+function irResumen() {
+  window.location.href = "resumen.html";
 }
 
-
-// ================================
-// CONSULTAR RESUMEN (PÁGINA 3)
-// ================================
+/* ==========================
+   RESUMEN
+========================== */
 function consultarResumen() {
-  const cc = document.getElementById("ccBusqueda").value;
+  const input = document.getElementById("ccBusqueda");
+  if (!input) return;
 
+  const cc = input.value.trim();
   if (!cc) {
     alert("Ingrese la cédula");
     return;
@@ -137,71 +90,35 @@ function consultarResumen() {
     .then(res => res.json())
     .then(data => {
       if (!Array.isArray(data) || data.length <= 1) {
-        document.getElementById("tablaResumen").innerHTML =
+        document.getElementById("listaResumen").innerHTML =
           "<p>No hay registros</p>";
         return;
       }
 
-      let html = `
-        <table>
-          <tr>
-            <th>Fecha</th>
-            <th>Peso</th>
-            <th>Proteína</th>
-            <th>Carbos</th>
-            <th>Grasas</th>
-            <th>Calorías</th>
-          </tr>
-      `;
+      let html = "";
 
-      data.slice(1).forEach(row => {
+      data.slice(1).reverse().forEach((row, i) => {
         html += `
-          <tr>
-            <td>${new Date(row[0]).toLocaleDateString()}</td>
-            <td>${row[2]}</td>
-            <td>${row[3]} g</td>
-            <td>${row[4]} g</td>
-            <td>${row[5]} g</td>
-            <td>${row[6]}</td>
-          </tr>
+          <div class="registro">
+            <button class="fecha-btn" onclick="toggleRegistro(${i})">
+              📅 ${new Date(row[0]).toLocaleDateString()}
+            </button>
+            <div class="detalle" id="detalle-${i}">
+              <p>Peso: ${row[2]} kg</p>
+              <p>Proteína: ${row[3]} g</p>
+              <p>Carbos: ${row[4]} g</p>
+              <p>Grasas: ${row[5]} g</p>
+              <p>Calorías: ${row[6]}</p>
+            </div>
+          </div>
         `;
       });
 
-      html += "</table>";
-      document.getElementById("tablaResumen").innerHTML = html;
-    })
-    .catch(err => {
-      console.error(err);
-      alert("Error consultando datos");
+      document.getElementById("listaResumen").innerHTML = html;
     });
 }
 
-
-
-// ================================
-// AUTO-EJECUCIÓN SEGÚN PÁGINA
-// ================================
-document.addEventListener("DOMContentLoaded", () => {
-  if (document.getElementById("guia")) {
-    mostrarGuia();
-  }
-});
-
-function consultarResumen() {
-  const input = document.getElementById("ccBusqueda");
-
-  if (!input) {
-    alert("Error: no se encontró el campo de búsqueda");
-    return;
-  }
-
-  const cc = input.value.trim();
-
-  if (!cc) {
-    alert("Ingrese la cédula");
-    return;
-  }
-
-  // Continúa lógica...
+function toggleRegistro(i) {
+  const el = document.getElementById(`detalle-${i}`);
+  el.style.display = el.style.display === "block" ? "none" : "block";
 }
-
