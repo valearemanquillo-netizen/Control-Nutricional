@@ -7,19 +7,22 @@
 </head>
 <body>
 
-<div class="card">
-  <h2>Guía Nutricional Diaria</h2>
-
-  <div id="guia"></div>
 
   <!-- Botones -->
   <button onclick="guardarGuia()">💾 Guardar Guía</button>
   <button onclick="irResumen()">📊 Ver Resumen</button>
 
-  <!-- Contenedor de mensajes -->
-  <div id="mensaje-guia"></div>
+
 </div>
 
 <script src="app.js"></script>
 </body>
+  <!-- Modal mensaje -->
+<div id="modal-mensaje" class="modal">
+  <div class="modal-content">
+    <p id="modal-texto">Guía diaria guardada correctamente</p>
+    <button id="cerrar-modal">OK</button>
+  </div>
+</div>
+
 </html>
