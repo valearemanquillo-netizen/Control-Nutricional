@@ -163,6 +163,9 @@ async function consultarResumen() {
     alert("Error al consultar los registros");
   }
 }
+function irInicio() {
+  window.location.href = "inicio.html";
+}
 
 // ====================== INICIALIZACIÓN GUÍA ======================
 window.addEventListener("load", () => {
