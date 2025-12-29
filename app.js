@@ -74,13 +74,29 @@ function cargarGuia() {
 
 if(document.getElementById("guia")) cargarGuia();
 
+
+function mostrarModal(texto) {
+  const modal = document.getElementById("modal-mensaje");
+  const modalTexto = document.getElementById("modal-texto");
+  const cerrarBtn = document.getElementById("cerrar-modal");
+
+  modalTexto.textContent = texto;
+  modal.style.display = "flex";
+
+  cerrarBtn.onclick = () => {
+    modal.style.display = "none";
+  };
+
+  // cerrar al hacer click fuera del contenido
+  window.onclick = (e) => {
+    if (e.target == modal) modal.style.display = "none";
+  };
+}
+
 // Guardar guía diaria en REGISTROS
 function guardarGuia() {
   const guia = JSON.parse(localStorage.getItem("guia"));
-  if (!guia) {
-    mostrarMensajeGuia("No hay datos de guía para guardar", true);
-    return;
-  }
+  if (!guia) return mostrarModal("No hay datos de guía para guardar");
 
   const data = {
     tipo: "registro",
@@ -99,21 +115,14 @@ function guardarGuia() {
   .then(res => res.json())
   .then(resp => {
     if (resp.estado === "OK") {
-      mostrarMensajeGuia("Guía diaria guardada correctamente", false);
+      mostrarModal("Guía diaria guardada correctamente");
     } else {
-      mostrarMensajeGuia("Error al guardar guía diaria", true);
+      mostrarModal("Error al guardar guía diaria");
     }
   })
-  .catch(err => mostrarMensajeGuia("Error: " + err, true));
+  .catch(err => mostrarModal("Error: " + err));
 }
 
-// Función para mostrar mensaje en la página
-function mostrarMensajeGuia(texto, esError) {
-  const cont = document.getElementById("mensaje-guia");
-  cont.textContent = texto;
-  cont.style.background = esError ? "rgba(255,0,0,0.2)" : "rgba(255,255,255,0.1)";
-  cont.style.color = esError ? "#ff4d4d" : "var(--text-main)";
-}
 
 
 // Ir a la página de resumen
