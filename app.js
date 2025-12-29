@@ -1,6 +1,6 @@
 const URL = "https://script.google.com/macros/s/AKfycbySAXW-_bKS6kS8JbrIlRTxT1RInfseNnTqtWL13CnCfPoaiBgyUbkHx5kaz6l0qjuf/exec"; // Reemplaza con tu URL
 
-// ====================== PERFIL ======================
+
 function guardarPerfil() {
   const cc = document.getElementById("cc").value.trim();
   const peso = +document.getElementById("peso").value;
@@ -35,7 +35,7 @@ function guardarPerfil() {
     .catch(err => console.error("Error al guardar perfil:", err));
 }
 
-// ====================== GUÍA DIARIA ======================
+
 function mostrarGuiaDiaria(guia) {
   const cont = document.getElementById("guia");
   if (!guia) return;
@@ -97,7 +97,7 @@ function guardarGuia() {
     .catch(err => mostrarModal("Error: " + err));
 }
 
-// ====================== MODAL ======================
+
 function mostrarModal(texto) {
   const modal = document.getElementById("modal-mensaje");
   const modalTexto = document.getElementById("modal-texto");
@@ -110,12 +110,12 @@ function mostrarModal(texto) {
   window.onclick = (e) => { if(e.target == modal) modal.style.display = "none"; };
 }
 
-// ====================== IR A RESUMEN ======================
+
 function irResumen() {
   window.location.href = "resumen.html";
 }
 
-// ====================== RESUMEN ======================
+
 async function consultarResumen() {
   const ccInput = document.getElementById("ccResumen").value.trim();
   if (!ccInput) return alert("Ingresa tu CC para buscar tus registros");
@@ -167,7 +167,7 @@ function irInicio() {
   window.location.href = "inicio.html";
 }
 
-// ====================== INICIALIZACIÓN GUÍA ======================
+
 window.addEventListener("load", () => {
   const usuario = JSON.parse(localStorage.getItem("usuario"));
   if (usuario && document.getElementById("guia")) mostrarGuiaDiaria(usuario);
