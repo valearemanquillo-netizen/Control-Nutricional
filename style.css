@@ -22,6 +22,24 @@ body {
   font-family: 'Segoe UI', sans-serif;
   padding: 40px 20px;
 }
+.btn-volver {
+  width: 100%;
+  padding: 14px;
+  margin-top: 10px;
+  border-radius: 22px;
+  border: none;
+  background: linear-gradient(145deg, #222, #111);
+  color: var(--text-main);
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-volver:hover {
+  background: linear-gradient(145deg, #111, #222);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 25px rgba(0,0,0,0.6);
+}
 
 body::before {
   content: "";
