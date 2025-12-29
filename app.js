@@ -116,12 +116,14 @@ function guardarGuia() {
   .then(resp => {
     if (resp.estado === "OK") {
       mostrarModal("Guía diaria guardada correctamente");
+      mostrarGuiaDiaria(guia); // MOSTRAR datos aunque se abra el modal
     } else {
       mostrarModal("Error al guardar guía diaria");
     }
   })
   .catch(err => mostrarModal("Error: " + err));
 }
+
 
 
 
