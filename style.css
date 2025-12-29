@@ -144,6 +144,25 @@ button:hover {
   border: 1px solid var(--border-soft);
   background: rgba(255,255,255,0.05);
 }
+.menu-card {
+  max-width: 400px;
+  text-align: center;
+}
+
+.menu-card h1 {
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+.menu-card p {
+  font-size: 16px;
+  margin-bottom: 20px;
+  color: var(--text-soft);
+}
+
+.menu-card button {
+  margin-bottom: 15px;
+}
 
 .fecha-btn {
   width: 100%;
