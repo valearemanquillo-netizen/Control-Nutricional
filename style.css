@@ -1,21 +1,19 @@
 /* =======================
-   VARIABLES MONOCROMÁTICAS
+   VARIABLES Y MONOCROMO
 ======================= */
 :root {
-  --bg-main: #0c0c0c;
-  --bg-card: rgba(255,255,255,0.05);
-  --bg-soft: rgba(255,255,255,0.1);
-  --bg-hover: rgba(255,255,255,0.18);
-  --text-main: #fff;
-  --text-soft: rgba(255,255,255,0.6);
+  --bg-overlay: rgba(0,0,0,0.65);
+  --text-main: #ffffff;
+  --text-soft: rgba(255,255,255,0.7);
   --border-soft: rgba(255,255,255,0.2);
-  --shadow-card: 0 20px 40px rgba(0,0,0,0.6);
+  --shadow-card: 0 25px 45px rgba(0,0,0,0.6);
 }
 
-/* BODY */
+/* BODY CON IMAGEN DE FONDO */
 body {
   min-height: 100vh;
-  background: radial-gradient(circle at top, #111, #000);
+  background: url('https://images.unsplash.com/photo-1598970434795-0c54fe7c0642?fit=crop&w=1600&q=80') no-repeat center center fixed;
+  background-size: cover;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -24,24 +22,36 @@ body {
   padding: 20px;
 }
 
+/* CAPA DE OSCURECIMIENTO */
+body::before {
+  content:"";
+  position:fixed;
+  top:0; left:0;
+  width:100%; height:100%;
+  background: var(--bg-overlay);
+  z-index:-1;
+}
+
 /* CARD */
 .card {
   width: 100%;
   max-width: 500px;
-  background: var(--bg-card);
-  border-radius: 20px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 22px;
   padding: 28px;
-  backdrop-filter: blur(16px);
+  backdrop-filter: blur(18px);
   box-shadow: var(--shadow-card);
   border: 1px solid var(--border-soft);
+  animation: fadeIn 0.5s ease;
 }
 
 /* TITULOS */
-h2, h3 {
+h2,h3 {
   text-align: center;
   margin-bottom: 20px;
   font-weight: 600;
   letter-spacing: 0.5px;
+  color: var(--text-main);
 }
 
 /* INPUTS & SELECT */
@@ -49,9 +59,9 @@ input, select {
   width: 100%;
   padding: 14px 16px;
   margin-bottom: 14px;
-  border-radius: 14px;
+  border-radius: 16px;
   border: 1px solid var(--border-soft);
-  background: var(--bg-soft);
+  background: rgba(255,255,255,0.1);
   color: var(--text-main);
   font-size: 15px;
   outline: none;
@@ -62,18 +72,18 @@ input::placeholder { color: var(--text-soft); }
 select option { color: #000; }
 
 input:focus, select:focus {
-  background: var(--bg-hover);
+  background: rgba(255,255,255,0.18);
   border-color: rgba(255,255,255,0.4);
-  box-shadow: 0 5px 10px rgba(255,255,255,0.1);
+  box-shadow: 0 6px 12px rgba(255,255,255,0.1);
 }
 
 /* BOTONES */
 button {
   width: 100%;
   padding: 14px;
-  border-radius: 16px;
+  border-radius: 20px;
   border: none;
-  background: linear-gradient(135deg, #222, #000);
+  background: linear-gradient(145deg, #222, #000);
   color: var(--text-main);
   font-weight: 600;
   cursor: pointer;
@@ -81,23 +91,23 @@ button {
 }
 
 button:hover {
-  background: linear-gradient(135deg, #333, #111);
-  transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+  background: linear-gradient(145deg, #333, #111);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 25px rgba(0,0,0,0.6);
 }
 
 /* RESULTADOS / GUÍA DIARIA */
 .resultado, #guia {
   margin-top: 20px;
-  padding: 18px;
-  border-radius: 16px;
-  background: rgba(255,255,255,0.06);
+  padding: 20px;
+  border-radius: 18px;
+  background: rgba(255,255,255,0.08);
   border: 1px solid var(--border-soft);
 }
 
 .resultado p, #guia ul li {
-  margin-bottom: 10px;
-  font-size: 14.5px;
+  margin-bottom: 12px;
+  font-size: 15px;
   color: var(--text-soft);
 }
 
@@ -118,17 +128,17 @@ button:hover {
   padding: 14px;
   border: none;
   text-align: left;
-  font-size: 14.5px;
+  font-size: 15px;
   cursor: pointer;
-  transition: background 0.25s ease;
+  transition: background 0.3s ease;
 }
 
 .fecha-btn:hover { background: #1f1f1f; }
 
 .detalle {
-  display: none;  /* Oculto por defecto */
+  display: none;
   padding: 14px 16px;
-  background: rgba(255,255,255,0.06);
+  background: rgba(255,255,255,0.08);
   animation: fadeIn 0.35s ease;
 }
 
@@ -140,12 +150,12 @@ button:hover {
 
 /* ANIMACIÓN */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-6px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity:0; transform: translateY(-6px);}
+  to { opacity:1; transform: translateY(0);}
 }
 
 /* RESPONSIVE */
-@media (max-width: 480px) {
+@media (max-width: 480px){
   .card { padding: 22px; }
   h2 { font-size: 20px; }
 }
