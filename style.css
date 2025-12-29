@@ -1,4 +1,4 @@
-/* Variables y monocromo */
+
 :root {
   --bg-overlay: rgba(0,0,0,0.75);
   --text-main: #fff;
@@ -10,7 +10,7 @@
   --color-grasa: #ff9800;
 }
 
-/* Body */
+
 body {
   min-height: 100vh;
   background: url('https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D') no-repeat center center fixed;
@@ -50,7 +50,7 @@ body::before {
   z-index: -1;
 }
 
-/* Card */
+
 .card {
   width: 100%;
   max-width: 500px;
@@ -63,7 +63,6 @@ body::before {
   margin-bottom: 30px;
 }
 
-/* Inputs y Selects */
 input, select {
   width: 100%;
   padding: 14px 16px;
@@ -85,7 +84,7 @@ input:focus, select:focus {
   border-color: rgba(255,255,255,0.4);
 }
 
-/* Botones */
+
 button {
   width: 100%;
   padding: 16px;
@@ -105,12 +104,11 @@ button:hover {
   box-shadow: 0 12px 25px rgba(0,0,0,0.6);
 }
 
-/* Guía diaria */
+
 #guia ul li b:nth-child(1) { color: var(--color-proteina); }
 #guia ul li b:nth-child(2) { color: var(--color-carbo); }
 #guia ul li b:nth-child(3) { color: var(--color-grasa); }
 
-/* Modal */
 .modal {
   display: none;
   position: fixed;
@@ -196,5 +194,4 @@ button:hover {
 .detalle { display: none; padding: 14px 16px; background: rgba(255,255,255,0.08); }
 .detalle p { margin-bottom: 8px; font-size: 14px; color: var(--text-soft); }
 
-/* Animaciones */
 @keyframes fadeIn { from {opacity:0; transform:translateY(-8px);} to {opacity:1; transform:translateY(0);} }
