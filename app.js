@@ -1,4 +1,4 @@
-const URL = "https://script.google.com/macros/s/AKfycbw-lMyQV3bCJcma7gso0QAojZFK_AVdfrvNR75BQrmCTNaGGhToiv5HuEIKds9GKottfg/exec"; // Cambia por tu Apps Script
+const URL = "https://script.google.com/macros/s/AKfycbySAXW-_bKS6kS8JbrIlRTxT1RInfseNnTqtWL13CnCfPoaiBgyUbkHx5kaz6l0qjuf/exec"; // Cambia por tu Apps Script
 
 // Guardar perfil
 function guardarPerfil() {
