@@ -1,24 +1,17 @@
-const URL = "https://script.google.com/macros/s/AKfycbySAXW-_bKS6kS8JbrIlRTxT1RInfseNnTqtWL13CnCfPoaiBgyUbkHx5kaz6l0qjuf/exec"; // Cambia por tu Apps Script
+const URL = "https://script.google.com/macros/s/AKfycbySAXW-_bKS6kS8JbrIlRTxT1RInfseNnTqtWL13CnCfPoaiBgyUbkHx5kaz6l0qjuf/exec"; // Reemplaza con tu URL
 
-// Guardar perfil
+// ====================== PERFIL ======================
 function guardarPerfil() {
-  const cc = document.getElementById("cc").value;
-  const peso = parseFloat(document.getElementById("peso").value);
-  const altura = parseFloat(document.getElementById("altura").value);
-  const edad = parseInt(document.getElementById("edad").value);
+  const cc = document.getElementById("cc").value.trim();
+  const peso = +document.getElementById("peso").value;
+  const altura = +document.getElementById("altura").value;
+  const edad = +document.getElementById("edad").value;
   const sexo = document.getElementById("sexo").value;
-  const actividad = parseFloat(document.getElementById("actividad").value);
+  const actividad = +document.getElementById("actividad").value;
 
   if (!cc || !peso || !altura || !edad || !sexo || !actividad) {
-    alert("Completa todos los campos");
-    return;
+    return alert("Completa todos los datos del perfil");
   }
-
-  // Calculo estimado de calorías, proteínas, carbos y grasas
-  const calorias = Math.round((10*peso + 6.25*altura - 5*edad + (sexo==="H"?5:-161))*actividad);
-  const proteina = Math.round(calorias*0.23/4);
-  const carbos = Math.round(calorias*0.52/4);
-  const grasas = Math.round(calorias*0.25/9);
 
   const data = {
     tipo: "usuario",
@@ -27,73 +20,60 @@ function guardarPerfil() {
     altura,
     edad,
     sexo,
-    actividad,
-    calorias,
-    proteina,
-    carbos,
-    grasas
+    actividad
   };
 
-  fetch(URL, {
-    method: "POST",
-    body: JSON.stringify(data)
-  }).then(res => res.json())
+  fetch(URL, { method: "POST", body: JSON.stringify(data) })
+    .then(res => res.json())
     .then(resp => {
-      if (resp.estado === "OK") {
-        // Guardamos localmente para la guía
-        localStorage.setItem("guia", JSON.stringify(data));
-        window.location.href = "guia.html"; // Redirige a guía diaria
-      } else alert("Error al guardar perfil");
+      if(resp.estado === "OK") {
+        // Guardar en localStorage para usar en guía diaria
+        localStorage.setItem("usuario", JSON.stringify(data));
+        window.location.href = "guia.html";
+      }
     })
-    .catch(e => alert("Error al guardar perfil: "+e));
+    .catch(err => console.error("Error al guardar perfil:", err));
 }
 
-// Cargar guía diaria con IMC
-function cargarGuia() {
-  const guia = JSON.parse(localStorage.getItem("guia"));
+// ====================== GUÍA DIARIA ======================
+function mostrarGuiaDiaria(guia) {
+  const cont = document.getElementById("guia");
   if (!guia) return;
 
-  const alturaM = guia.altura/100;
-  const imc = (guia.peso/(alturaM*alturaM)).toFixed(1);
-  let imcCategoria = "";
-  if (imc < 18.5) imcCategoria = "Bajo peso";
-  else if (imc < 25) imcCategoria = "Normal";
-  else if (imc < 30) imcCategoria = "Sobrepeso";
-  else imcCategoria = "Obesidad";
+  const proteina = Math.round(guia.peso * 2); // ejemplo
+  const carbo = Math.round(guia.peso * 4); // ejemplo
+  const grasas = Math.round(guia.peso * 1); // ejemplo
+  const calorias = proteina*4 + carbo*4 + grasas*9;
 
-  document.getElementById("guia").innerHTML = `
+  const imc = (guia.peso / ((guia.altura/100)**2)).toFixed(1);
+  let imcTexto = "";
+  if (imc < 18.5) imcTexto = "Bajo peso";
+  else if (imc < 25) imcTexto = "Normal";
+  else if (imc < 30) imcTexto = "Sobrepeso";
+  else imcTexto = "Obesidad";
+
+  const guiaData = {
+    cc: guia.cc,
+    peso: guia.peso,
+    proteina,
+    carbo,
+    grasas,
+    calorias
+  };
+
+  localStorage.setItem("guia", JSON.stringify(guiaData));
+
+  cont.innerHTML = `
     <ul>
-      <li>🥩 Proteína: <b>${guia.proteina} g</b></li>
-      <li>🍚 Carbohidratos: <b>${guia.carbos} g</b></li>
-      <li>🥑 Grasas: <b>${guia.grasas} g</b></li>
-      <li>🔥 Calorías: <b>${guia.calorias}</b></li>
-      <li>⚖️ IMC: <b>${imc} (${imcCategoria})</b></li>
+      <li>Proteínas: <b>${proteina} g</b></li>
+      <li>Carbohidratos: <b>${carbo} g</b></li>
+      <li>Grasas: <b>${grasas} g</b></li>
+      <li>Calorías: <b>${calorias}</b></li>
+      <li>IMC: <b>${imc} (${imcTexto})</b></li>
     </ul>
   `;
 }
 
-if(document.getElementById("guia")) cargarGuia();
-
-
-function mostrarModal(texto) {
-  const modal = document.getElementById("modal-mensaje");
-  const modalTexto = document.getElementById("modal-texto");
-  const cerrarBtn = document.getElementById("cerrar-modal");
-
-  modalTexto.textContent = texto;
-  modal.style.display = "flex";
-
-  cerrarBtn.onclick = () => {
-    modal.style.display = "none";
-  };
-
-  // cerrar al hacer click fuera del contenido
-  window.onclick = (e) => {
-    if (e.target == modal) modal.style.display = "none";
-  };
-}
-
-// Guardar guía diaria en REGISTROS
 function guardarGuia() {
   const guia = JSON.parse(localStorage.getItem("guia"));
   if (!guia) return mostrarModal("No hay datos de guía para guardar");
@@ -108,32 +88,34 @@ function guardarGuia() {
     calorias: guia.calorias
   };
 
-  fetch(URL, {
-    method: "POST",
-    body: JSON.stringify(data)
-  })
-  .then(res => res.json())
-  .then(resp => {
-    if (resp.estado === "OK") {
-      mostrarModal("Guía diaria guardada correctamente");
-      mostrarGuiaDiaria(guia); // MOSTRAR datos aunque se abra el modal
-    } else {
-      mostrarModal("Error al guardar guía diaria");
-    }
-  })
-  .catch(err => mostrarModal("Error: " + err));
+  fetch(URL, { method: "POST", body: JSON.stringify(data) })
+    .then(res => res.json())
+    .then(resp => {
+      if (resp.estado === "OK") mostrarModal("Guía diaria guardada correctamente");
+      else mostrarModal("Error al guardar guía diaria");
+    })
+    .catch(err => mostrarModal("Error: " + err));
 }
 
+// ====================== MODAL ======================
+function mostrarModal(texto) {
+  const modal = document.getElementById("modal-mensaje");
+  const modalTexto = document.getElementById("modal-texto");
+  const cerrarBtn = document.getElementById("cerrar-modal");
 
+  modalTexto.textContent = texto;
+  modal.style.display = "flex";
 
+  cerrarBtn.onclick = () => modal.style.display = "none";
+  window.onclick = (e) => { if(e.target == modal) modal.style.display = "none"; };
+}
 
-// Ir a la página de resumen
+// ====================== IR A RESUMEN ======================
 function irResumen() {
-  window.location.href = "./resumen.html"; // asegura que busque en la misma carpeta
+  window.location.href = "resumen.html";
 }
 
-
-// CONSULTAR RESUMEN
+// ====================== RESUMEN ======================
 async function consultarResumen() {
   const ccInput = document.getElementById("ccResumen").value.trim();
   if (!ccInput) return alert("Ingresa tu CC para buscar tus registros");
@@ -142,24 +124,20 @@ async function consultarResumen() {
     const res = await fetch(`${URL}?hoja=REGISTROS`);
     const data = await res.json();
 
-    // Filtrar por CC
-    const registros = data.filter(r => r[1] == ccInput); // r[1] = CC
+    const registros = data.filter(r => r[1] == ccInput);
     if (!registros.length) return alert("No se encontraron registros");
 
-    // Ordenar por fecha (r[0] = fecha)
-    registros.sort((a, b) => new Date(a[0]) - new Date(b[0]));
+    registros.sort((a,b) => new Date(a[0]) - new Date(b[0]));
 
-    // Mostrar registros
     const cont = document.getElementById("resumen");
     cont.innerHTML = "";
 
     registros.forEach(reg => {
       const fecha = new Date(reg[0]);
-      const fechaStr = fecha.toLocaleDateString("es-ES"); // dd/mm/yyyy
+      const fechaStr = fecha.toLocaleDateString("es-ES");
 
       const div = document.createElement("div");
       div.classList.add("registro");
-
       div.innerHTML = `
         <button class="fecha-btn">${fechaStr}</button>
         <div class="detalle">
@@ -170,11 +148,9 @@ async function consultarResumen() {
           <p>Calorías: <b>${reg[6]}</b></p>
         </div>
       `;
-
       cont.appendChild(div);
     });
 
-    // Desplegable por fecha
     document.querySelectorAll(".fecha-btn").forEach(btn => {
       btn.addEventListener("click", () => {
         const detalle = btn.nextElementSibling;
@@ -182,16 +158,14 @@ async function consultarResumen() {
       });
     });
 
-  } catch (err) {
+  } catch(err) {
     console.error(err);
     alert("Error al consultar los registros");
   }
 }
 
-
-// Toggle desplegable
-function toggleRegistro(i) {
-  const detalle = document.getElementById(`detalle-${i}`);
-  if(!detalle) return;
-  detalle.style.display = detalle.style.display === "block" ? "none" : "block";
-}
+// ====================== INICIALIZACIÓN GUÍA ======================
+window.addEventListener("load", () => {
+  const usuario = JSON.parse(localStorage.getItem("usuario"));
+  if (usuario && document.getElementById("guia")) mostrarGuiaDiaria(usuario);
+});
