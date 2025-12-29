@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Control Nutricional - Inicio</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="card menu-card">
+    <h1>Bienvenido a tu Control Nutricional</h1>
+    <p>Selecciona la opción que deseas:</p>
+
+    <button onclick="irRegistro()">💾 Registro de Perfil y Guía Diaria</button>
+    <button onclick="irResumen()">📊 Consultar Resumen</button>
+  </div>
+
+  <script>
+    function irRegistro() {
+      window.location.href = "index.html"; // Tu página de registro/guía diaria
+    }
+
+    function irResumen() {
+      window.location.href = "resumen.html";
+    }
+  </script>
+</body>
+</html>
