@@ -6,16 +6,14 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <div class="card">
+    <h2>Resumen de Registros</h2>
+    <input id="ccResumen" type="text" placeholder="Ingresa tu cédula">
+    <button onclick="consultarResumen()">Buscar</button>
 
-<div class="card">
-  <h2>Resumen de Registros</h2>
-  <input id="ccResumen" type="text" placeholder="Ingresa tu cédula">
-  <button onclick="consultarResumen()">Buscar</button>
+    <div id="resumen"></div>
+  </div>
 
-  <div id="resumen"></div>
-</div>
-
-
-<script src="app.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
