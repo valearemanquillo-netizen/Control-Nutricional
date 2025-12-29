@@ -1,30 +1,24 @@
-const URL = "https://script.google.com/macros/s/AKfycbw-lMyQV3bCJcma7gso0QAojZFK_AVdfrvNR75BQrmCTNaGGhToiv5HuEIKds9GKottfg/exec";
+const URL = "https://script.google.com/macros/s/AKfycbw-lMyQV3bCJcma7gso0QAojZFK_AVdfrvNR75BQrmCTNaGGhToiv5HuEIKds9GKottfg/exec"; // Cambia por tu Apps Script
 
-/* ==========================
-   PERFIL
-========================== */
+// Guardar perfil
 function guardarPerfil() {
-  const cc = document.getElementById("cc").value.trim();
-  const peso = +document.getElementById("peso").value;
-  const altura = +document.getElementById("altura").value;
-  const edad = +document.getElementById("edad").value;
+  const cc = document.getElementById("cc").value;
+  const peso = parseFloat(document.getElementById("peso").value);
+  const altura = parseFloat(document.getElementById("altura").value);
+  const edad = parseInt(document.getElementById("edad").value);
   const sexo = document.getElementById("sexo").value;
-  const actividad = +document.getElementById("actividad").value;
+  const actividad = parseFloat(document.getElementById("actividad").value);
 
   if (!cc || !peso || !altura || !edad || !sexo || !actividad) {
-    alert("Complete todos los campos");
+    alert("Completa todos los campos");
     return;
   }
 
-  // Cálculo TMB (Mifflin)
-  const tmb = sexo === "H"
-    ? 10 * peso + 6.25 * altura - 5 * edad + 5
-    : 10 * peso + 6.25 * altura - 5 * edad - 161;
-
-  const calorias = Math.round(tmb * actividad);
-  const proteina = Math.round(peso * 2);
-  const grasas = Math.round(calorias * 0.25 / 9);
-  const carbos = Math.round((calorias - (proteina * 4 + grasas * 9)) / 4);
+  // Calculo estimado de calorías, proteínas, carbos y grasas
+  const calorias = Math.round((10*peso + 6.25*altura - 5*edad + (sexo==="H"?5:-161))*actividad);
+  const proteina = Math.round(calorias*0.23/4);
+  const carbos = Math.round(calorias*0.52/4);
+  const grasas = Math.round(calorias*0.25/9);
 
   const data = {
     tipo: "usuario",
@@ -43,24 +37,24 @@ function guardarPerfil() {
   fetch(URL, {
     method: "POST",
     body: JSON.stringify(data)
-  })
-    .then(() => {
-      localStorage.setItem("guia", JSON.stringify(data));
-      window.location.href = "guia.html";
-    });
+  }).then(res => res.json())
+    .then(resp => {
+      if (resp.estado === "OK") {
+        // Guardamos localmente para la guía
+        localStorage.setItem("guia", JSON.stringify(data));
+        window.location.href = "guia.html"; // Redirige a guía diaria
+      } else alert("Error al guardar perfil");
+    })
+    .catch(e => alert("Error al guardar perfil: "+e));
 }
 
-/* ==========================
-   GUIA
-========================== */
-9function cargarGuia() {
+// Cargar guía diaria con IMC
+function cargarGuia() {
   const guia = JSON.parse(localStorage.getItem("guia"));
   if (!guia) return;
 
-  // Calculamos IMC
-  const alturaM = guia.altura / 100;
-  const imc = (guia.peso / (alturaM * alturaM)).toFixed(1);
-
+  const alturaM = guia.altura/100;
+  const imc = (guia.peso/(alturaM*alturaM)).toFixed(1);
   let imcCategoria = "";
   if (imc < 18.5) imcCategoria = "Bajo peso";
   else if (imc < 25) imcCategoria = "Normal";
@@ -78,61 +72,41 @@ function guardarPerfil() {
   `;
 }
 
-if (document.getElementById("guia")) {
-  cargarGuia();
-}
+if(document.getElementById("guia")) cargarGuia();
 
-
-/* ==========================
-   RESUMEN
-========================== */
+// Consultar resumen por CC
 function consultarResumen() {
-  const input = document.getElementById("ccBusqueda");
-  if (!input) return;
+  const cc = document.getElementById("cc-buscar").value;
+  if(!cc) return alert("Ingresa una cédula");
 
-  const cc = input.value.trim();
-  if (!cc) {
-    alert("Ingrese la cédula");
-    return;
-  }
-
-  fetch(`${URL}?hoja=REGISTROS&cc=${cc}`)
+  fetch(`${URL}?hoja=REGISTROS`)
     .then(res => res.json())
     .then(data => {
-      if (!Array.isArray(data) || data.length <= 1) {
-        document.getElementById("listaResumen").innerHTML =
-          "<p>No hay registros</p>";
-        return;
-      }
+      const filtrados = data.filter(r => r[1] == cc); // Supone que columna 1 es CC
+      const contenedor = document.getElementById("resumen");
+      contenedor.innerHTML = "";
 
-      let html = "";
-
-      data.slice(1).reverse().forEach((row, i) => {
-        html += `
-          <div class="registro">
-            <button class="fecha-btn" onclick="toggleRegistro(${i})">
-              📅 ${new Date(row[0]).toLocaleDateString()}
-            </button>
-            <div class="detalle" id="detalle-${i}">
-              <p>Peso: ${row[2]} kg</p>
-              <p>Proteína: ${row[3]} g</p>
-              <p>Carbos: ${row[4]} g</p>
-              <p>Grasas: ${row[5]} g</p>
-              <p>Calorías: ${row[6]}</p>
-            </div>
+      filtrados.forEach((r,i)=>{
+        const div = document.createElement("div");
+        div.classList.add("registro");
+        div.innerHTML = `
+          <button class="fecha-btn" onclick="toggleRegistro(${i})">📅 ${r[0]}</button>
+          <div class="detalle" id="detalle-${i}">
+            <p>Peso: ${r[2]} kg</p>
+            <p>Proteína: ${r[3]} g</p>
+            <p>Carbos: ${r[4]} g</p>
+            <p>Grasas: ${r[5]} g</p>
+            <p>Calorías: ${r[6]}</p>
           </div>
         `;
+        contenedor.appendChild(div);
       });
-
-      document.getElementById("listaResumen").innerHTML = html;
     });
 }
 
+// Toggle desplegable
 function toggleRegistro(i) {
   const detalle = document.getElementById(`detalle-${i}`);
-  if (!detalle) return;
-
-  detalle.style.display =
-    detalle.style.display === "block" ? "none" : "block";
+  if(!detalle) return;
+  detalle.style.display = detalle.style.display === "block" ? "none" : "block";
 }
-
