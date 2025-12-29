@@ -74,6 +74,37 @@ function cargarGuia() {
 
 if(document.getElementById("guia")) cargarGuia();
 
+// Guardar guía diaria en REGISTROS
+function guardarGuia() {
+  const guia = JSON.parse(localStorage.getItem("guia"));
+  if (!guia) return alert("No hay datos de guía para guardar");
+
+  const data = {
+    tipo: "registro",
+    cc: guia.cc,
+    peso: guia.peso,
+    proteina: guia.proteina,
+    carbos: guia.carbos,
+    grasas: guia.grasas,
+    calorias: guia.calorias
+  };
+
+  fetch(URL, {
+    method: "POST",
+    body: JSON.stringify(data)
+  }).then(res => res.json())
+    .then(resp => {
+      if (resp.estado === "OK") alert("Guía diaria guardada correctamente");
+      else alert("Error al guardar guía diaria");
+    })
+    .catch(e => alert("Error: " + e));
+}
+
+// Ir a la página de resumen
+function irResumen() {
+  window.location.href = "resumen.html";
+}
+
 // Consultar resumen por CC
 function consultarResumen() {
   const cc = document.getElementById("cc-buscar").value;
