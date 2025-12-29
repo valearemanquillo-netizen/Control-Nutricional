@@ -53,25 +53,35 @@ function guardarPerfil() {
 /* ==========================
    GUIA
 ========================== */
-function cargarGuia() {
-  const data = JSON.parse(localStorage.getItem("guia"));
-  if (!data) return;
+9function cargarGuia() {
+  const guia = JSON.parse(localStorage.getItem("guia"));
+  if (!guia) return;
+
+  // Calculamos IMC
+  const alturaM = guia.altura / 100;
+  const imc = (guia.peso / (alturaM * alturaM)).toFixed(1);
+
+  let imcCategoria = "";
+  if (imc < 18.5) imcCategoria = "Bajo peso";
+  else if (imc < 25) imcCategoria = "Normal";
+  else if (imc < 30) imcCategoria = "Sobrepeso";
+  else imcCategoria = "Obesidad";
 
   document.getElementById("guia").innerHTML = `
     <ul>
-      <li>Proteína diaria: <b>${data.proteina} g</b></li>
-      <li>Carbohidratos: <b>${data.carbos} g</b></li>
-      <li>Grasas: <b>${data.grasas} g</b></li>
-      <li>Calorías: <b>${data.calorias}</b></li>
+      <li>🥩 Proteína: <b>${guia.proteina} g</b></li>
+      <li>🍚 Carbohidratos: <b>${guia.carbos} g</b></li>
+      <li>🥑 Grasas: <b>${guia.grasas} g</b></li>
+      <li>🔥 Calorías: <b>${guia.calorias}</b></li>
+      <li>⚖️ IMC: <b>${imc} (${imcCategoria})</b></li>
     </ul>
   `;
 }
 
-if (document.getElementById("guia")) cargarGuia();
-
-function irResumen() {
-  window.location.href = "resumen.html";
+if (document.getElementById("guia")) {
+  cargarGuia();
 }
+
 
 /* ==========================
    RESUMEN
