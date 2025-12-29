@@ -1,28 +1,18 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <title>Guía Diaria</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
+<div class="card">
+  <h2>Guía Nutricional Diaria</h2>
 
+  <!-- Contenedor para mostrar la guía diaria -->
+  <div id="guia"></div>
 
   <!-- Botones -->
   <button onclick="guardarGuia()">💾 Guardar Guía</button>
   <button onclick="irResumen()">📊 Ver Resumen</button>
-
-
 </div>
 
-<script src="app.js"></script>
-</body>
-  <!-- Modal mensaje -->
+<!-- Modal de mensaje -->
 <div id="modal-mensaje" class="modal">
   <div class="modal-content">
     <p id="modal-texto">Guía diaria guardada correctamente</p>
     <button id="cerrar-modal">OK</button>
   </div>
 </div>
-
-</html>
