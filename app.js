@@ -102,8 +102,9 @@ function guardarGuia() {
 
 // Ir a la página de resumen
 function irResumen() {
-  window.location.href = "resumen.html";
+  window.location.href = "./resumen.html"; // asegura que busque en la misma carpeta
 }
+
 
 // Consultar resumen por CC
 function consultarResumen() {
