@@ -106,35 +106,61 @@ function irResumen() {
 }
 
 
-// Consultar resumen por CC
-function consultarResumen() {
-  const cc = document.getElementById("cc-buscar").value;
-  if(!cc) return alert("Ingresa una cédula");
+// CONSULTAR RESUMEN
+async function consultarResumen() {
+  const ccInput = document.getElementById("ccResumen").value.trim();
+  if (!ccInput) return alert("Ingresa tu CC para buscar tus registros");
 
-  fetch(`${URL}?hoja=REGISTROS`)
-    .then(res => res.json())
-    .then(data => {
-      const filtrados = data.filter(r => r[1] == cc); // Supone que columna 1 es CC
-      const contenedor = document.getElementById("resumen");
-      contenedor.innerHTML = "";
+  try {
+    const res = await fetch(`${URL}?hoja=REGISTROS`);
+    const data = await res.json();
 
-      filtrados.forEach((r,i)=>{
-        const div = document.createElement("div");
-        div.classList.add("registro");
-        div.innerHTML = `
-          <button class="fecha-btn" onclick="toggleRegistro(${i})">📅 ${r[0]}</button>
-          <div class="detalle" id="detalle-${i}">
-            <p>Peso: ${r[2]} kg</p>
-            <p>Proteína: ${r[3]} g</p>
-            <p>Carbos: ${r[4]} g</p>
-            <p>Grasas: ${r[5]} g</p>
-            <p>Calorías: ${r[6]}</p>
-          </div>
-        `;
-        contenedor.appendChild(div);
+    // Filtrar por CC
+    const registros = data.filter(r => r[1] == ccInput); // r[1] = CC
+    if (!registros.length) return alert("No se encontraron registros");
+
+    // Ordenar por fecha (r[0] = fecha)
+    registros.sort((a, b) => new Date(a[0]) - new Date(b[0]));
+
+    // Mostrar registros
+    const cont = document.getElementById("resumen");
+    cont.innerHTML = "";
+
+    registros.forEach(reg => {
+      const fecha = new Date(reg[0]);
+      const fechaStr = fecha.toLocaleDateString("es-ES"); // dd/mm/yyyy
+
+      const div = document.createElement("div");
+      div.classList.add("registro");
+
+      div.innerHTML = `
+        <button class="fecha-btn">${fechaStr}</button>
+        <div class="detalle">
+          <p>Peso: <b>${reg[2]} kg</b></p>
+          <p>Proteínas: <b>${reg[3]} g</b></p>
+          <p>Carbohidratos: <b>${reg[4]} g</b></p>
+          <p>Grasas: <b>${reg[5]} g</b></p>
+          <p>Calorías: <b>${reg[6]}</b></p>
+        </div>
+      `;
+
+      cont.appendChild(div);
+    });
+
+    // Desplegable por fecha
+    document.querySelectorAll(".fecha-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const detalle = btn.nextElementSibling;
+        detalle.style.display = detalle.style.display === "block" ? "none" : "block";
       });
     });
+
+  } catch (err) {
+    console.error(err);
+    alert("Error al consultar los registros");
+  }
 }
+
 
 // Toggle desplegable
 function toggleRegistro(i) {
