@@ -77,14 +77,17 @@ if(document.getElementById("guia")) cargarGuia();
 // Guardar guía diaria en REGISTROS
 function guardarGuia() {
   const guia = JSON.parse(localStorage.getItem("guia"));
-  if (!guia) return alert("No hay datos de guía para guardar");
+  if (!guia) {
+    mostrarMensajeGuia("No hay datos de guía para guardar", true);
+    return;
+  }
 
   const data = {
     tipo: "registro",
     cc: guia.cc,
     peso: guia.peso,
     proteina: guia.proteina,
-    carbos: guia.carbos,
+    carbos: guia.carbo,
     grasas: guia.grasas,
     calorias: guia.calorias
   };
@@ -92,13 +95,26 @@ function guardarGuia() {
   fetch(URL, {
     method: "POST",
     body: JSON.stringify(data)
-  }).then(res => res.json())
-    .then(resp => {
-      if (resp.estado === "OK") alert("Guía diaria guardada correctamente");
-      else alert("Error al guardar guía diaria");
-    })
-    .catch(e => alert("Error: " + e));
+  })
+  .then(res => res.json())
+  .then(resp => {
+    if (resp.estado === "OK") {
+      mostrarMensajeGuia("Guía diaria guardada correctamente", false);
+    } else {
+      mostrarMensajeGuia("Error al guardar guía diaria", true);
+    }
+  })
+  .catch(err => mostrarMensajeGuia("Error: " + err, true));
 }
+
+// Función para mostrar mensaje en la página
+function mostrarMensajeGuia(texto, esError) {
+  const cont = document.getElementById("mensaje-guia");
+  cont.textContent = texto;
+  cont.style.background = esError ? "rgba(255,0,0,0.2)" : "rgba(255,255,255,0.1)";
+  cont.style.color = esError ? "#ff4d4d" : "var(--text-main)";
+}
+
 
 // Ir a la página de resumen
 function irResumen() {
